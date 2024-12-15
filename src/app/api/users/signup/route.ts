@@ -2,7 +2,7 @@ import {connectDB} from "@/dbConfig/dbConfig"
 import User from "@/models/user.model"
 import { NextRequest, NextResponse } from "next/server"
 import bcryptjs from 'bcryptjs'
-import {sendemail} from "@/helper/mailer"
+import {sendEmail} from "@/helper/mailer"
 
 
 connectDB()
