@@ -8,19 +8,21 @@ import jwt from 'jsonwebtoken'
 
 
 connectDB()
-    export async function GET(req: NextRequest) {
+    export async function POST(req: NextRequest) {
         try {
-            const {email, password} = req.body
+            const reqBody = await req.json()
+            const {email, password} = reqBody
+            //console.log(email, password)
             if(!email || !password){
-                return NextResponse.badRequest({message: "Please fill all the fields"})
+                return NextResponse.json({error:"Please fill all the fields"},{status: 400})
             }
             const user = await User.findOne({email})
             if(!user){
-                return NextResponse.badRequest({message: "User does not exist"})
+                return NextResponse.json({message: "User does not exist"},{status: 400})
             }
             const isvalidPassword = await bcryptjs.compare(password, user.password)
             if(!isvalidPassword){
-                return NextResponse.badRequest({message: "Invalid credentials"})
+                return NextResponse.json({message: "Invalid credentials"},{status: 400})
             }
 
             const tokenData = {
@@ -33,12 +35,12 @@ connectDB()
             
             const token = jwt.sign(tokenData, process.env.TOKEN_SECRET, {expiresIn: '1d'})
 
-            const response = NextResponse.json{
-                maggase: "Login successful",
-                success : true,
-            }
+            const response = NextResponse.json({
+                message: "Login successful",
+                success: true,
+            })
 
-            response.cookie.set('token', token, {
+            response.cookies.set('token', token, {
                 httpOnly: true
             })
 
@@ -46,7 +48,7 @@ connectDB()
 
         } catch (error) {
             console.error(error)
-            return NextResponse.badRequest({message: "Server error"})
+            return NextResponse.json({message: "Server error"}, {status: 500})
         }
     }
 
